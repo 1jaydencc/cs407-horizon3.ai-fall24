@@ -1,0 +1,35 @@
+#docker-compose.yml
+version: "3.8"
+services:
+  nginx:
+    image: nginx:latest
+    volumes:
+      - ./nginx_conf:/etc/nginx/conf.d
+    ports:
+      - "80:80"
+    depends_on:
+      - webhook-creator
+      - webhook-receiver
+    networks:
+      - webnet
+
+  webhook-creator:
+    build: ./webhook-creator
+    environment:
+      - WEBHOOK_URL=http://146.235.209.208/webhook
+      - AUTH_TOKEN=your_auth_token_here
+    networks:
+      - webnet
+
+  webhook-receiver:
+    build: ./webhook-receiver
+    ports:
+      - "5001:5001"
+    volumes:
+      - ./binary_diff_module/shared_data:/shared
+    networks:
+      - webnet
+
+
+networks:
+  webnet:
